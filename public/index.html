@@ -1,1 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TONMOY AI BOT</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ background:radial-gradient(circle at top,#29200d,#080808 48%);
+ color:#fff;font-family:Arial,sans-serif;
+ padding:15px;min-height:100vh
+}
+.app{max-width:460px;margin:auto}
+.header{
+ padding:25px 15px;text-align:center;border-radius:22px;
+ background:linear-gradient(145deg,#30230b,#100e09);
+ border:1px solid #d2a640;
+ box-shadow:0 0 30px #c99b3030,inset 0 0 20px #d2a64010
+}
+.logo{
+ font-size:27px;font-weight:1000;letter-spacing:1px;
+ color:#ffdf86;text-shadow:0 0 8px #e2ad39,0 0 25px #b77b13
+}
+.sub{font-size:10px;color:#b9a77e;letter-spacing:3px;margin-top:9px}
+.live{
+ display:inline-block;margin-top:15px;padding:7px 15px;
+ border:1px solid #b99139;border-radius:30px;
+ color:#f5d77e;font-size:10px
+}
+.card{
+ margin-top:16px;padding:18px;border-radius:18px;
+ background:linear-gradient(145deg,#1b1913,#0b0b0b);
+ border:1px solid #5c4821;
+ box-shadow:0 8px 25px #0008,inset 0 0 20px #e4b94b08
+}
+.title{color:#f3d17a;font-size:13px;font-weight:bold;margin-bottom:15px}
+.timer{
+ text-align:center;font-size:53px;font-weight:900;
+ color:#ffda70;text-shadow:0 0 20px #e6ae30
+}
+.center{text-align:center;color:#a99b7b;font-size:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.signal{
+ padding:20px 8px;text-align:center;border-radius:15px;
+ background:#11100d;border:1px solid #8e6a28;
+ box-shadow:0 0 14px #d3a43a18
+}
+.signal h2{color:#ffdb78;font-size:24px;margin-top:9px}
+.signal p{font-size:10px;color:#aaa}
+.status{color:#d6b66b;font-size:11px;margin-top:12px}
+button{
+ width:100%;padding:15px;margin-top:12px;border:0;
+ border-radius:12px;font-weight:900;color:#171006;
+ background:linear-gradient(100deg,#9b6b18,#ffe28b,#b07c1d);
+ cursor:pointer;box-shadow:0 0 18px #d9aa3a25
+}
+textarea{
+ width:100%;height:115px;background:#090909;color:white;
+ border:1px solid #765c2b;border-radius:12px;padding:12px
+}
+.result{
+ white-space:pre-wrap;line-height:1.7;font-size:12px;
+ color:#ddd;background:#090909;padding:13px;
+ border-radius:10px;margin-top:12px
+}
+.history{
+ padding:12px;margin-top:9px;background:#0d0d0d;
+ border-left:3px solid #d4a63f;border-radius:7px;
+ font-size:11px;color:#ccc
+}
+.footer{text-align:center;color:#8d805f;font-size:10px;padding:25px}
+</style>
+</head>
+<body>
+<div class="app">
 
+<header class="header">
+ <div class="logo">👑 TONMOY AI BOT</div>
+ <div class="sub">ULTRA VIP GOLD EDITION</div>
+ <div class="live">● PREMIUM SYSTEM ONLINE</div>
+</header>
+
+<div class="card">
+ <div class="title">⏱️ LIVE COUNTDOWN</div>
+ <div class="timer" id="timer">60</div>
+ <div class="center">NEXT ANALYSIS CYCLE</div>
+</div>
+
+<div class="card">
+ <div class="title">✦ BIG / SMALL AI SIGNAL</div>
+ <div class="grid">
+  <div class="signal"><p>BIG</p><h2 id="bs">--</h2></div>
+  <div class="signal"><p>SMALL</p><h2 id="ss">--</h2></div>
+ </div>
+ <div class="status" id="bsStatus">Waiting for historical data...</div>
+</div>
+
+<div class="card">
+ <div class="title">✦ EVEN / ODD AI SIGNAL</div>
+ <div class="grid">
+  <div class="signal"><p>EVEN</p><h2 id="ev">--</h2></div>
+  <div class="signal"><p>ODD</p><h2 id="od">--</h2></div>
+ </div>
+ <div class="status" id="eoStatus">Waiting for historical data...</div>
+</div>
+
+<div class="card">
+ <div class="title">📊 HISTORICAL RESULT INPUT</div>
+ <textarea id="data" placeholder="প্রতি লাইনে একটি K3 sum লিখো"></textarea>
+ <button onclick="loadData()">LOAD HISTORICAL DATA</button>
+</div>
+
+<div class="card">
+ <div class="title">🤖 REAL AI ANALYSIS</div>
+ <button onclick="runAI()" id="aiBtn">START AI ANALYSIS</button>
+ <div class="result" id="aiResult">AI analysis pending...</div>
+</div>
+
+<div class="card">
+ <div class="title">📜 SIGNAL HISTORY</div>
+ <div id="history">No history yet.</div>
+</div>
+
+<div class="footer">
+ TONMOY AI BOT • POWERED BY HISTORICAL ANALYSIS
+</div>
+</div>
+
+<script>
+let rows=[],seconds=60;
+
+function calculate(){
+ if(rows.length<5)return;
+ let big=rows.filter(x=>x>=11).length;
+ let small=rows.length-big;
+ let even=rows.filter(x=>x%2===0).length;
+ let odd=rows.length-even;
+
+ document.getElementById("bs").textContent=big>=small?"BIG":"SMALL";
+ document.getElementById("ss").textContent=big>=small?"SMALL":"BIG";
+ document.getElementById("ev").textContent=even>=odd?"EVEN":"ODD";
+ document.getElementById("od").textContent=even>=odd?"ODD":"EVEN";
+
+ document.getElementById("bsStatus").textContent=
+ `Historical count: BIG ${big} | SMALL ${small}`;
+ document.getElementById("eoStatus").textContent=
+ `Historical count: EVEN ${even} | ODD ${odd}`;
+}
+
+function loadData(){
+ let v=document.getElementById("data").value.trim()
+ .split(/[\s,]+/).filter(Boolean).map(Number);
+ if(v.length<5||v.some(x=>!Number.isInteger(x)||x<3||x>18)){
+  alert("কমপক্ষে ৫টি valid result (3–18) দাও");return;
+ }
+ rows=v;calculate();
+}
+
+async function runAI(){
+ if(rows.length<5){alert("আগে historical data load করো");return}
+ let btn=document.getElementById("aiBtn");
+ btn.disabled=true;
+ document.getElementById("aiResult").textContent="AI analyzing...";
+ try{
+  let r=await fetch("/api/analyze",{
+   method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({rows})
+  });
+  let d=await r.json();
+  if(!r.ok)throw Error(d.error||"API Error");
+  document.getElementById("aiResult").textContent=d.analysis;
+  save(d.analysis);
+ }catch(e){
+  document.getElementById("aiResult").textContent="AI Error: "+e.message;
+ }finally{btn.disabled=false}
+}
+
+function save(t){
+ let h=JSON.parse(localStorage.getItem("tonmoyVIPHistory")||"[]");
+ h.unshift({time:new Date().toLocaleString(),text:t});
+ h=h.slice(0,20);
+ localStorage.setItem("tonmoyVIPHistory",JSON.stringify(h));
+ showHistory();
+}
+
+function showHistory(){
+ let h=JSON.parse(localStorage.getItem("tonmoyVIPHistory")||"[]");
+ document.getElementById("history").innerHTML=h.length?
+ h.map(x=>`<div class="history"><b>${safe(x.time)}</b><p>${safe(x.text)}</p></div>`).join("")
+ :"No history yet.";
+}
+function safe(t){
+ return String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+setInterval(()=>{
+ seconds--;
+ if(seconds<0){
+  seconds=60;
+  if(rows.length>=5)calculate();
+ }
+ document.getElementById("timer").textContent=seconds;
+},1000);
+
+showHistory();
+</script>
+</body>
+  </html>
